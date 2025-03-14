@@ -1,16 +1,39 @@
-# shishir_dey
+# Shishir Dey - Personal Website & Diary App
 
-A new Flutter project.
+A Flutter mobile application that transforms my personal website and diary into a mobile experience.
 
-## Getting Started
+## Setup and Build
 
-This project is a starting point for a Flutter application.
+### Prerequisites
+- Flutter SDK
+- Dart SDK
+- Android Studio / Xcode
 
-A few resources to get you started if this is your first Flutter project:
+### Setup
+```
+git clone https://github.com/shishir-dey/shishir_dey
+cd shishir_dey
+flutter pub get
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### Run
+```
+flutter run
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Build
+
+Android:
+```
+flutter build apk --release
+```
+
+iOS:
+```
+flutter build ios --release
+```
+
+Web:
+```
+flutter build web --release
+```
