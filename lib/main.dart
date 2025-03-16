@@ -11,6 +11,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoApp(
       title: 'My Portfolio',
+      debugShowCheckedModeBanner: false,
       theme: const CupertinoThemeData(
         primaryColor: CupertinoColors.activeBlue,
         brightness: Brightness.light,
