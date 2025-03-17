@@ -33,6 +33,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
+  // Define the background color
+  final Color backgroundColor = const Color.fromRGBO(217, 210, 189, 1);
 
   @override
   Widget build(BuildContext context) {
@@ -81,18 +83,32 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             }
 
-            return CupertinoPageScaffold(
-              navigationBar: CupertinoNavigationBar(
-                middle: Text(
-                  index == 0
-                      ? 'Home'
-                      : index == 1
-                      ? 'Photography'
-                      : index == 2
-                      ? 'Diary'
-                      : 'Contact',
+            // Home, Photography, and Contact tabs with the same background color
+            if (index == 0 || index == 1 || index == 4) {
+              return CupertinoPageScaffold(
+                backgroundColor: backgroundColor,
+                navigationBar: CupertinoNavigationBar(
+                  backgroundColor: backgroundColor,
+                  middle: Text(
+                    index == 0
+                        ? 'Home'
+                        : index == 1
+                        ? 'Photography'
+                        : 'Contact',
+                  ),
                 ),
-              ),
+                child: SafeArea(
+                  child:
+                      index == 0
+                          ? const HomeScreen()
+                          : const Center(child: Text('Coming soon')),
+                ),
+              );
+            }
+
+            // Diary tab (unchanged)
+            return CupertinoPageScaffold(
+              navigationBar: CupertinoNavigationBar(middle: Text('Diary')),
               child: const SafeArea(child: Center(child: Text('Coming soon'))),
             );
           },
@@ -188,6 +204,42 @@ class _PinterestIcon extends StatelessWidget {
       child: Image.asset(
         'assets/icon/tabs/pinterest_logo.png',
         fit: BoxFit.contain,
+      ),
+    );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Shishir Dey.',
+            style: TextStyle(
+              fontFamily: 'Chunkfive',
+              fontSize: 62,
+              color: CupertinoColors.black,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              'Hi. I am Shishir, an engineer based in India who loves technology and art!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Helvetica',
+                fontSize: 22,
+                color: CupertinoColors.black,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
