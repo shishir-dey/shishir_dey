@@ -75,16 +75,6 @@ class _TestHomePageState extends State<TestHomePage> {
             if (index == 0 || index == 1 || index == 3) {
               return CupertinoPageScaffold(
                 backgroundColor: backgroundColor,
-                navigationBar: CupertinoNavigationBar(
-                  backgroundColor: backgroundColor,
-                  middle: Text(
-                    index == 0
-                        ? 'Home'
-                        : index == 1
-                        ? 'Photography'
-                        : 'Contact',
-                  ),
-                ),
                 child: SafeArea(
                   child:
                       index == 0
@@ -98,7 +88,6 @@ class _TestHomePageState extends State<TestHomePage> {
 
             // Diary tab (unchanged)
             return CupertinoPageScaffold(
-              navigationBar: CupertinoNavigationBar(middle: Text('Diary')),
               child: const SafeArea(child: Center(child: Text('Coming soon'))),
             );
           },
