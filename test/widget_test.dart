@@ -8,7 +8,35 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:shishir_dey/main.dart';
+// Mock screens for testing
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: const [
+        Text('Shishir Dey.'),
+        Text(
+          'Hi. I am Shishir, an engineer based in India who loves technology and art!',
+        ),
+      ],
+    );
+  }
+}
+
+class ContactScreen extends StatelessWidget {
+  const ContactScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: const [Text('Socials'), Text('IM')],
+    );
+  }
+}
 
 // Test-only version of the app that doesn't include the Pinterest tab
 class TestApp extends StatelessWidget {
