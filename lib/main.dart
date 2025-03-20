@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 // import 'screens/home_screen.dart'; // Removed Home Screen import
 import 'screens/contact_screen.dart';
 import 'screens/diary_screen.dart';
+import 'screens/photography_screen.dart';
 import 'widgets/pinterest_webview.dart';
 
 void main() {
@@ -110,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: SafeArea(
                   child:
                       index == 0
-                          ? const Center(child: Text('Coming soon'))
+                          ? const PhotographyScreen()
                           : const ContactScreen(),
                 ),
               );
