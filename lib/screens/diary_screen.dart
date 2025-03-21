@@ -50,8 +50,8 @@ class _DiaryScreenState extends State<DiaryScreen> {
 
       // Try different possible API endpoints for the list of notes
       final possibleListUrls = [
-        'https://shishir-dey.github.io/content/notes/notes.json',
-        'https://raw.githubusercontent.com/shishir-dey/shishir-dey.github.io/main/content/notes/notes.json',
+        'https://shishir-dey.github.io/content/notes/metadata.json',
+        'https://raw.githubusercontent.com/shishir-dey/shishir-dey.github.io/main/content/notes/metadata.json',
         'https://api.github.com/repos/shishir-dey/shishir-dey.github.io/contents/content/notes',
       ];
 
