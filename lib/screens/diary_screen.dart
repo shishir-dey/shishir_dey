@@ -4,6 +4,7 @@ import 'dart:developer' as developer;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
 
 class DiaryScreen extends StatefulWidget {
   const DiaryScreen({super.key});
@@ -20,6 +21,8 @@ class _DiaryScreenState extends State<DiaryScreen> {
   bool modalVisible = false;
   bool hasError = false;
   String errorMessage = '';
+  bool hasConnectivity = true;
+  Timer? _connectivityTimer;
 
   // Define fallback sample note in case the API fails
   final List<Map<String, dynamic>> sampleNotes = [
@@ -39,6 +42,46 @@ class _DiaryScreenState extends State<DiaryScreen> {
   void initState() {
     super.initState();
     _loadNotesFromRemote();
+    // Start connectivity check timer
+    _startConnectivityTimer();
+  }
+
+  @override
+  void dispose() {
+    _connectivityTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startConnectivityTimer() {
+    _connectivityTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (!hasConnectivity) {
+        _checkConnectivityAndLoad();
+      }
+    });
+  }
+
+  Future<void> _checkConnectivityAndLoad() async {
+    try {
+      final response = await http
+          .head(Uri.parse('https://www.google.com'))
+          .timeout(const Duration(seconds: 5));
+
+      // If we get a response, we have connectivity
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        if (!hasConnectivity) {
+          setState(() {
+            hasConnectivity = true;
+          });
+          await _loadNotesFromRemote();
+        }
+      }
+    } catch (e) {
+      if (hasConnectivity) {
+        setState(() {
+          hasConnectivity = false;
+        });
+      }
+    }
   }
 
   Future<void> _loadNotesFromRemote() async {
@@ -77,6 +120,9 @@ class _DiaryScreenState extends State<DiaryScreen> {
                   'https://raw.githubusercontent.com/shishir-dey/shishir-dey.github.io/main/content/notes/';
             }
             developer.log('Successfully connected to: $url');
+            setState(() {
+              hasConnectivity = true;
+            });
             break;
           } else {
             developer.log(
@@ -90,6 +136,9 @@ class _DiaryScreenState extends State<DiaryScreen> {
       }
 
       if (listResponse == null) {
+        setState(() {
+          hasConnectivity = false;
+        });
         throw Exception('All API endpoints for note list failed');
       }
 
@@ -238,7 +287,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
         isLoading = false;
         hasError = true;
 
-        // Provide more detailed error message
+        // Provide more detailed error message (only for debugging purposes)
         String detailedError = e.toString();
         if (e is Exception) {
           detailedError = 'Exception: $e';
@@ -250,8 +299,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
           detailedError = 'Format error: $e';
         }
 
-        errorMessage =
-            'Could not load notes from server. Using fallback data. Error: $detailedError';
+        errorMessage = detailedError;
       });
     }
   }
@@ -366,324 +414,309 @@ class _DiaryScreenState extends State<DiaryScreen> {
       );
     }
 
-    return Stack(
-      children: [
-        Column(
-          children: [
-            // Tags section
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children:
-                      allTags.map((tag) {
-                        final isSelected = selectedTags.contains(tag);
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: CupertinoButton(
-                            padding: EdgeInsets.zero,
-                            onPressed: () {
-                              setState(() {
-                                if (isSelected) {
-                                  selectedTags.remove(tag);
-                                } else {
-                                  selectedTags.add(tag);
-                                }
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
+    // Main content with RefreshIndicator for pull-to-refresh
+    Widget mainContent = CustomScrollView(
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      ),
+      slivers: [
+        // Pull-to-refresh control
+        CupertinoSliverRefreshControl(onRefresh: _loadNotesFromRemote),
+
+        // Tags section
+        SliverToBoxAdapter(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children:
+                    allTags.map((tag) {
+                      final isSelected = selectedTags.contains(tag);
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          onPressed: () {
+                            setState(() {
+                              if (isSelected) {
+                                selectedTags.remove(tag);
+                              } else {
+                                selectedTags.add(tag);
+                              }
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color:
+                                  isSelected
+                                      ? CupertinoColors.activeBlue
+                                      : CupertinoColors.systemGrey5,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              '#$tag',
+                              style: TextStyle(
                                 color:
                                     isSelected
-                                        ? CupertinoColors.activeBlue
-                                        : CupertinoColors.systemGrey5,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Text(
-                                '#$tag',
-                                style: TextStyle(
-                                  color:
-                                      isSelected
-                                          ? CupertinoColors.white
-                                          : CupertinoColors.black,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                                        ? CupertinoColors.white
+                                        : CupertinoColors.black,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
-                        );
-                      }).toList(),
-                ),
+                        ),
+                      );
+                    }).toList(),
               ),
             ),
+          ),
+        ),
 
-            // Error message if present but we still have notes
-            if (hasError)
-              Container(
-                padding: const EdgeInsets.all(8),
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: CupertinoColors.systemYellow.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
+        // Notes grid
+        SliverPadding(
+          padding: const EdgeInsets.all(16),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 0.75,
+            ),
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final note = filteredNotes[index];
+              return GestureDetector(
+                onTap: () => _openModal(note),
+                child: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: CupertinoColors.activeBlue.withAlpha(20),
+                          blurRadius: 8,
+                          spreadRadius: 1,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Title and pin icon
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        note['title'] ?? 'Untitled',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: CupertinoColors.black,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      if (note['url'] != null)
+                                        GestureDetector(
+                                          onTap: () {
+                                            launchUrl(
+                                              Uri.parse(note['url']),
+                                              mode:
+                                                  LaunchMode
+                                                      .externalApplication,
+                                            );
+                                          },
+                                          child: const Padding(
+                                            padding: EdgeInsets.only(top: 2),
+                                            child: Text(
+                                              'View ↗',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color:
+                                                    CupertinoColors
+                                                        .activeOrange,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                if (note['isPinned'] == true)
+                                  const Icon(
+                                    CupertinoIcons.pin_fill,
+                                    size: 16,
+                                    color: CupertinoColors.activeBlue,
+                                  ),
+                              ],
+                            ),
+                          ),
+
+                          // Content preview
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                              child: Text(
+                                note['content'] ?? 'No content',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: CupertinoColors.black,
+                                ),
+                                maxLines: 5,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+
+                          // Date
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  CupertinoIcons.clock,
+                                  size: 12,
+                                  color: CupertinoColors.systemGrey,
+                                ),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    _formatDate(note['lastEdited']),
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      color: CupertinoColors.systemGrey,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Tags
+                          if (note['tags'] != null && note['tags'] is List)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 12,
+                                right: 12,
+                                bottom: 12,
+                              ),
+                              child: Wrap(
+                                spacing: 4,
+                                runSpacing: 4,
+                                children:
+                                    (note['tags'] as List).map<Widget>((tag) {
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: CupertinoColors.activeBlue
+                                              .withAlpha(25),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '#$tag',
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            color: CupertinoColors.activeBlue,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    Row(
+              );
+            }, childCount: filteredNotes.length),
+          ),
+        ),
+      ],
+    );
+
+    return Stack(
+      children: [
+        // Main content with proper padding when no connectivity
+        Column(
+          children: [
+            // No connectivity notification
+            if (!hasConnectivity && !isLoading)
+              Container(
+                color: CupertinoColors.systemRed.withOpacity(0.9),
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 16,
+                    ),
+                    child: Row(
                       children: [
-                        Icon(
-                          CupertinoIcons.exclamationmark_triangle,
-                          color: CupertinoColors.systemYellow,
-                          size: 20,
+                        const Icon(
+                          CupertinoIcons.wifi_slash,
+                          color: CupertinoColors.white,
+                          size: 18,
                         ),
                         const SizedBox(width: 8),
-                        Expanded(
+                        const Expanded(
                           child: Text(
-                            'Using local data. Tap to retry loading from network.',
+                            'No internet connection - Showing offline content',
                             style: TextStyle(
+                              color: CupertinoColors.white,
                               fontSize: 12,
-                              color: CupertinoColors.systemGrey,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
                         CupertinoButton(
                           padding: EdgeInsets.zero,
                           minSize: 0,
-                          onPressed: _loadNotesFromRemote,
-                          child: Icon(
+                          onPressed: _checkConnectivityAndLoad,
+                          child: const Icon(
                             CupertinoIcons.refresh,
-                            color: CupertinoColors.activeBlue,
+                            color: CupertinoColors.white,
                             size: 18,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      minSize: 0,
-                      child: Text(
-                        'Show detailed error',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: CupertinoColors.activeBlue,
-                        ),
-                      ),
-                      onPressed: () {
-                        showCupertinoDialog(
-                          context: context,
-                          builder:
-                              (context) => CupertinoAlertDialog(
-                                title: const Text('Error Details'),
-                                content: Text(errorMessage),
-                                actions: [
-                                  CupertinoDialogAction(
-                                    child: const Text('Close'),
-                                    onPressed: () => Navigator.pop(context),
-                                  ),
-                                ],
-                              ),
-                        );
-                      },
-                    ),
-                  ],
+                  ),
                 ),
               ),
 
-            // Notes grid
-            Expanded(
-              child: GridView.builder(
-                padding: const EdgeInsets.all(16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 0.75,
-                ),
-                itemCount: filteredNotes.length,
-                itemBuilder: (context, index) {
-                  final note = filteredNotes[index];
-                  return GestureDetector(
-                    onTap: () => _openModal(note),
-                    child: Transform.translate(
-                      offset: const Offset(0, -1),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: CupertinoColors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: CupertinoColors.activeBlue.withAlpha(20),
-                              blurRadius: 8,
-                              spreadRadius: 1,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Title and pin icon
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            note['title'] ?? 'Untitled',
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: CupertinoColors.black,
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          if (note['url'] != null)
-                                            GestureDetector(
-                                              onTap: () {
-                                                launchUrl(
-                                                  Uri.parse(note['url']),
-                                                  mode:
-                                                      LaunchMode
-                                                          .externalApplication,
-                                                );
-                                              },
-                                              child: const Padding(
-                                                padding: EdgeInsets.only(
-                                                  top: 2,
-                                                ),
-                                                child: Text(
-                                                  'View ↗',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w600,
-                                                    color:
-                                                        CupertinoColors
-                                                            .activeOrange,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                    if (note['isPinned'] == true)
-                                      const Icon(
-                                        CupertinoIcons.pin_fill,
-                                        size: 16,
-                                        color: CupertinoColors.activeBlue,
-                                      ),
-                                  ],
-                                ),
-                              ),
-
-                              // Content preview
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                  ),
-                                  child: Text(
-                                    note['content'] ?? 'No content',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: CupertinoColors.black,
-                                    ),
-                                    maxLines: 5,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ),
-
-                              // Date
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 4,
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      CupertinoIcons.clock,
-                                      size: 12,
-                                      color: CupertinoColors.systemGrey,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Flexible(
-                                      child: Text(
-                                        _formatDate(note['lastEdited']),
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          color: CupertinoColors.systemGrey,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              // Tags
-                              if (note['tags'] != null && note['tags'] is List)
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 12,
-                                    right: 12,
-                                    bottom: 12,
-                                  ),
-                                  child: Wrap(
-                                    spacing: 4,
-                                    runSpacing: 4,
-                                    children:
-                                        (note['tags'] as List).map<Widget>((
-                                          tag,
-                                        ) {
-                                          return Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 6,
-                                              vertical: 2,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: CupertinoColors.activeBlue
-                                                  .withAlpha(25),
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: Text(
-                                              '#$tag',
-                                              style: const TextStyle(
-                                                fontSize: 10,
-                                                color:
-                                                    CupertinoColors.activeBlue,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          );
-                                        }).toList(),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+            // Content area
+            Expanded(child: mainContent),
           ],
         ),
 

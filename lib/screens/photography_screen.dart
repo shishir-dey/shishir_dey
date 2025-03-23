@@ -15,6 +15,8 @@ class _PhotographyScreenState extends State<PhotographyScreen> {
   String _selectedCategory = 'All';
   List<PhotoItem> _photos = [];
   bool _isLoading = true;
+  bool _hasConnectivity = true;
+  Timer? _connectivityTimer;
 
   // Map to store image aspect ratios
   final Map<String, double> _imageAspectRatios = {};
@@ -23,10 +25,54 @@ class _PhotographyScreenState extends State<PhotographyScreen> {
   void initState() {
     super.initState();
     _fetchPhotos();
+    // Start connectivity check timer
+    _startConnectivityTimer();
+  }
+
+  @override
+  void dispose() {
+    _connectivityTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startConnectivityTimer() {
+    _connectivityTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (!_hasConnectivity) {
+        _checkConnectivityAndLoad();
+      }
+    });
+  }
+
+  Future<void> _checkConnectivityAndLoad() async {
+    try {
+      final response = await http
+          .head(Uri.parse('https://www.google.com'))
+          .timeout(const Duration(seconds: 5));
+
+      // If we get a response, we have connectivity
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        if (!_hasConnectivity) {
+          setState(() {
+            _hasConnectivity = true;
+          });
+          await _fetchPhotos();
+        }
+      }
+    } catch (e) {
+      if (_hasConnectivity) {
+        setState(() {
+          _hasConnectivity = false;
+        });
+      }
+    }
   }
 
   Future<void> _fetchPhotos() async {
     try {
+      setState(() {
+        _isLoading = true;
+      });
+
       final response = await http.get(
         Uri.parse('https://shishir-dey.github.io/content/photos/metadata.json'),
       );
@@ -36,6 +82,7 @@ class _PhotographyScreenState extends State<PhotographyScreen> {
         setState(() {
           _photos = data.map((item) => PhotoItem.fromJson(item)).toList();
           _isLoading = false;
+          _hasConnectivity = true;
 
           // Extract unique categories from tags
           final Set<String> uniqueTags = {};
@@ -56,10 +103,16 @@ class _PhotographyScreenState extends State<PhotographyScreen> {
           _preloadImage(photo.url);
         }
       } else {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+          _hasConnectivity = false;
+        });
       }
     } catch (e) {
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+        _hasConnectivity = false;
+      });
     }
   }
 
@@ -131,9 +184,14 @@ class _PhotographyScreenState extends State<PhotographyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
+    Widget content = CustomScrollView(
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      ),
       slivers: [
+        // Pull-to-refresh control
+        CupertinoSliverRefreshControl(onRefresh: _fetchPhotos),
+
         // Categories horizontal scroll
         SliverToBoxAdapter(
           child: SizedBox(
@@ -234,6 +292,58 @@ class _PhotographyScreenState extends State<PhotographyScreen> {
 
         // Bottom padding
         const SliverToBoxAdapter(child: SizedBox(height: 20)),
+      ],
+    );
+
+    return Column(
+      children: [
+        // No connectivity notification
+        if (!_hasConnectivity && !_isLoading)
+          Container(
+            color: CupertinoColors.systemRed.withOpacity(0.9),
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 16,
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      CupertinoIcons.wifi_slash,
+                      color: CupertinoColors.white,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'No internet connection - Showing offline content',
+                        style: TextStyle(
+                          color: CupertinoColors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      minSize: 0,
+                      onPressed: _checkConnectivityAndLoad,
+                      child: const Icon(
+                        CupertinoIcons.refresh,
+                        color: CupertinoColors.white,
+                        size: 18,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+        // Content area
+        Expanded(child: content),
       ],
     );
   }
