@@ -701,8 +701,8 @@ class _DiaryScreenState extends State<DiaryScreen> {
                         ),
                         CupertinoButton(
                           padding: EdgeInsets.zero,
-                          minSize: 0,
                           onPressed: _checkConnectivityAndLoad,
+                          minimumSize: Size(0, 0),
                           child: const Icon(
                             CupertinoIcons.refresh,
                             color: CupertinoColors.white,
@@ -788,8 +788,8 @@ class _DiaryScreenState extends State<DiaryScreen> {
                           ),
                           CupertinoButton(
                             padding: EdgeInsets.zero,
-                            minSize: 24,
                             onPressed: _closeModal,
+                            minimumSize: Size(24, 24),
                             child: const Icon(
                               CupertinoIcons.xmark,
                               color: CupertinoColors.systemGrey,

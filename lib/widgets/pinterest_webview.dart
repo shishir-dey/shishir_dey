@@ -189,8 +189,8 @@ class _PinterestWebViewState extends State<PinterestWebView> {
                     ),
                     CupertinoButton(
                       padding: EdgeInsets.zero,
-                      minSize: 0,
                       onPressed: _checkConnectivityAndLoad,
+                      minimumSize: Size(0, 0),
                       child: const Icon(
                         CupertinoIcons.refresh,
                         color: CupertinoColors.white,
