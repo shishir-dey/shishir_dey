@@ -21,10 +21,10 @@ packages:
     dependency: transitive
     description:
       name: async
-      sha256: "758e6d74e971c3e5aceb4110bfd6698efc7f501675bcfe0c775459a8140750eb"
+      sha256: d2872f9c19731c2e5f10444b14686eb7cc85c76274bd6c16e1816bff9a3bab63
       url: "https://pub.dev"
     source: hosted
-    version: "2.13.0"
+    version: "2.12.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -93,10 +93,10 @@ packages:
     dependency: transitive
     description:
       name: fake_async
-      sha256: "5368f224a74523e8d2e7399ea1638b37aecfca824a3cc4dfdf77bf1fa905ac44"
+      sha256: "6a95e56b2449df2273fd8c45a662d6947ce1ebb7aafe80e550a3f68297f3cacc"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.3"
+    version: "1.3.2"
   ffi:
     dependency: transitive
     description:
@@ -180,10 +180,10 @@ packages:
     dependency: transitive
     description:
       name: leak_tracker
-      sha256: "6bb818ecbdffe216e81182c2f0714a2e62b593f4a4f13098713ff1685dfb6ab0"
+      sha256: c35baad643ba394b40aac41080300150a4f08fd0fd6a10378f8f7c6bc161acec
       url: "https://pub.dev"
     source: hosted
-    version: "10.0.9"
+    version: "10.0.8"
   leak_tracker_flutter_testing:
     dependency: transitive
     description:
@@ -401,10 +401,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: ddfa8d30d89985b96407efce8acbdd124701f96741f2d981ca860662f1c0dc02
+      sha256: "0968250880a6c5fe7edc067ed0a13d4bae1577fe2771dcf3010d52c4a9d3ca14"
       url: "https://pub.dev"
     source: hosted
-    version: "15.0.0"
+    version: "14.3.1"
   web:
     dependency: transitive
     description:
@@ -417,34 +417,34 @@ packages:
     dependency: "direct main"
     description:
       name: webview_flutter
-      sha256: "889a0a678e7c793c308c68739996227c9661590605e70b1f6cf6b9a6634f7aec"
+      sha256: caf0f5a1012aa3c2d33c4215adc72dc1194bb59a2d3ed901f457965626805e66
       url: "https://pub.dev"
     source: hosted
-    version: "4.10.0"
+    version: "4.11.0"
   webview_flutter_android:
     dependency: "direct main"
     description:
       name: webview_flutter_android
-      sha256: "34ee3954f28ab3c8b5f96608d75125736643b3c239c969cd50d9476d5f90559a"
+      sha256: "5c3b6f992d123084903ec091b84f021c413a92a9af49038e4564a1b26c8452cf"
       url: "https://pub.dev"
     source: hosted
-    version: "4.3.5"
+    version: "4.4.1"
   webview_flutter_platform_interface:
     dependency: transitive
     description:
       name: webview_flutter_platform_interface
-      sha256: d937581d6e558908d7ae3dc1989c4f87b786891ab47bb9df7de548a151779d8d
+      sha256: "18b1640839cf6546784a524c72aded5b6e86b23e7167dc2311cc96f7658b64bd"
       url: "https://pub.dev"
     source: hosted
-    version: "2.10.0"
+    version: "2.11.0"
   webview_flutter_wkwebview:
     dependency: "direct main"
     description:
       name: webview_flutter_wkwebview
-      sha256: bf0745adeaca48a3105473440cffade47720fe2d56514de4e86f0d363439c4a7
+      sha256: c9f9be526fa0d3347374ceaa05c4b3acb85f4f112abd62f7d74b7d301fa515ff
       url: "https://pub.dev"
     source: hosted
-    version: "3.18.6"
+    version: "3.20.0"
   xml:
     dependency: transitive
     description:
