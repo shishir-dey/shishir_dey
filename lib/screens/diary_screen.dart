@@ -673,7 +673,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
             // No connectivity notification
             if (!hasConnectivity && !isLoading)
               Container(
-                color: CupertinoColors.systemRed.withOpacity(0.9),
+                color: CupertinoColors.systemRed.withValues(alpha: 0.9),
                 child: SafeArea(
                   bottom: false,
                   child: Padding(

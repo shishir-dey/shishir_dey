@@ -161,7 +161,7 @@ class _PinterestWebViewState extends State<PinterestWebView> {
         // No connectivity notification
         if (!_hasConnectivity && !_isLoading)
           Container(
-            color: CupertinoColors.systemRed.withOpacity(0.9),
+            color: CupertinoColors.systemRed.withValues(alpha: 0.9),
             child: SafeArea(
               bottom: false,
               child: Padding(
