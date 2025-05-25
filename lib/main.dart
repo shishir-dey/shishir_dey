@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'screens/contact_screen.dart';
 import 'screens/diary_screen.dart';
 import 'screens/photography_screen.dart';
+import 'screens/splash_screen.dart';
 import 'widgets/pinterest_webview.dart';
 
 void main() {
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
         primaryColor: CupertinoColors.activeBlue,
         brightness: Brightness.light,
       ),
-      home: const MyHomePage(),
+      home: const SplashScreen(),
     );
   }
 }
@@ -67,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
       tabBar: CupertinoTabBar(
         backgroundColor: getTabBarBackgroundColor(),
         activeColor: CupertinoColors.black,
-        inactiveColor: CupertinoColors.black.withAlpha(153),
+        inactiveColor: CupertinoColors.black.withValues(alpha: 153 / 255),
         currentIndex: _selectedIndex,
         onTap: (index) {
           setState(() {
