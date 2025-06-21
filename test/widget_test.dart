@@ -65,7 +65,7 @@ class TestHomePage extends StatefulWidget {
 
 class _TestHomePageState extends State<TestHomePage> {
   int _selectedIndex = 0;
-  final Color backgroundColor = const Color.fromRGBO(217, 210, 189, 1);
+  final Color backgroundColor = const Color(0xFFFFFBEB);
 
   @override
   Widget build(BuildContext context) {
