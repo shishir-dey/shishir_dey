@@ -47,7 +47,7 @@ class ContactScreen extends StatelessWidget {
                   'Hi. I am Shishir, an engineer based in India who loves technology and art!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontFamily: 'SourceSans3',
+                    fontFamily: 'Helvetica',
                     fontSize: 18,
                     color: CupertinoColors.black,
                   ),

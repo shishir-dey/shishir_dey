@@ -87,9 +87,9 @@ flutter:
     - family: Chunkfive
       fonts:
         - asset: assets/fonts/ChunkFive.otf
-    - family: SourceSans3
+    - family: Helvetica
       fonts:
-        - asset: assets/fonts/SourceSans3.ttf
+        - asset: assets/fonts/Helvetica.ttf
   #   - family: Schyler
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf
