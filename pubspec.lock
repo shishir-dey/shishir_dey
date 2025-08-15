@@ -337,10 +337,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_android
-      sha256: "8582d7f6fe14d2652b4c45c9b6c14c0b678c2af2d083a11b604caeba51930d79"
+      sha256: "0aedad096a85b49df2e4725fa32118f9fa580f3b14af7a2d2221896a02cd5656"
       url: "https://pub.dev"
     source: hosted
-    version: "6.3.16"
+    version: "6.3.17"
   url_launcher_ios:
     dependency: transitive
     description:
@@ -401,10 +401,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: ddfa8d30d89985b96407efce8acbdd124701f96741f2d981ca860662f1c0dc02
+      sha256: "45caa6c5917fa127b5dbcfbd1fa60b14e583afdc08bfc96dda38886ca252eb60"
       url: "https://pub.dev"
     source: hosted
-    version: "15.0.0"
+    version: "15.0.2"
   web:
     dependency: transitive
     description:
@@ -425,10 +425,10 @@ packages:
     dependency: "direct main"
     description:
       name: webview_flutter_android
-      sha256: "414174cacd339046a1a6dbf93cac62422194c676fed11119ccf228b81640e887"
+      sha256: "0a42444056b24ed832bdf3442d65c5194f6416f7e782152384944053c2ecc9a3"
       url: "https://pub.dev"
     source: hosted
-    version: "4.9.1"
+    version: "4.10.0"
   webview_flutter_platform_interface:
     dependency: transitive
     description:
